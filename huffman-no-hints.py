@@ -16,13 +16,13 @@ class Node:
     #left: Optional['Node']
     #right: Optional['Node']
 
-    def __init__(self, token               , prob       , left                   = None, right                   = None)        :
+    def __init__(self, token, prob, left=None, right=None):
         self.token = token
         self.prob = prob
         self.left = left
         self.right = right
 
-    def __str__(self)       :
+    def __str__(self):
         return f'Node(token={self.token},prob={self.prob}'
 
 
@@ -31,7 +31,7 @@ class HuffTree:
 
     #root: Node
 
-    def __init__(self, tokens           , prob             , sorted       = False)        :
+    def __init__(self, tokens, prob, sorted=False):
         assert len(tokens) == len(
             prob), 'len of tokens should match len of frequencies'
         pairs = list(zip(prob, tokens))  # e.g. (3, 'a')
@@ -43,10 +43,10 @@ class HuffTree:
 
         # else:
         q0 = deque(Node(prob=prob, token=token) for prob, token in pairs)
-        q1              = deque()
+        q1 = deque()
         while len(q1) + len(q0) > 1:
 
-            front             = []
+            front = []
 
             for _ in range(2):
                 if len(q1) == 0:
@@ -66,10 +66,10 @@ class HuffTree:
         else:
             raise ValueError("You have only 1 value to encode")
 
-    def get_info(self)                                :
+    def get_info(self):
         '''Walk through the tree and extract info as `[(code, token, prob),...]`'''
-        front                         = [('', self.root)]
-        out                               = []
+        front = [('', self.root)]
+        out = []
         while front:
             code, node = front.pop()
             # right first here since we're on a stack
@@ -82,9 +82,9 @@ class HuffTree:
                 out.append((code, node.token, node.prob))
         return out
 
-    def decode(self, bin_str     )       :
+    def decode(self, bin_str):
         '''Decode a string with given Huffman Tree'''
-        chars            = []
+        chars = []
         pos = self.root
         for c in bin_str:
             if c == '0':
@@ -106,23 +106,23 @@ class HuffTree:
         return ''.join(chars)
 
 
-def shannon_entropy(probs                 )         :
+def shannon_entropy(probs):
     '''Calculates the theoretical entropy for the given Iterable of probabilities'''
     from math import log2
     return -sum(p * log2(p) for p in probs)
 
 
-def bpt(prob                 , bin_code               , group_len     )         :
+def bpt(prob, bin_code, group_len):
     '''Takes in an Iterable of probabilities and an Iterable of their corresponding binary codes, and calculates the average bit per token'''
     return sum(a * len(b) for a, b in zip(prob, bin_code)) / group_len
 
 
-def batch_to_len(tokens               , prob                 , target_len     )                                 :
+def batch_to_len(tokens, prob, target_len):
     '''Batch together tokens together up to size of `len`. Returns all possible batches and their probabilities'''
     return list(map(''.join, product(tokens, repeat=target_len))), list(map(lambda p: reduce(operator.mul, p, 1), product(prob, repeat=target_len)))
 
 
-def run(tokens               , probs                 , target_len     , sort_results       = True, limit_results                = 100):
+def run(tokens, probs, target_len, sort_results=True, limit_results=100):
     '''Run through the Huffman Algorithm to generate code for a given sequence of `tokens` and their `probabilities`, and how many tokens to bundle together.
 
     `target_len`: how many `tokens` to bundle together.
@@ -176,7 +176,7 @@ def run(tokens               , probs                 , target_len     , sort_res
 # # 2.
 # run(tokens='htm', probs=[1/4, 1/4, 1/2], target_len=1)
 # # 3
-run(tokens=['a','b','c','d','e'], probs=[1/3] + [1/6]*4, target_len=1)
+run(tokens=['a', 'b', 'c', 'd', 'e'], probs=[1/3] + [1/6]*4, target_len=1)
 # run(tokens='abcde', probs=[1/3] + [1/6]*4, target_len=5)
 
 
